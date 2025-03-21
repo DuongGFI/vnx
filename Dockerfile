@@ -6,7 +6,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Cài đặt dependencies cho Playwright
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libwoff1 \
     libopus0 \
     libwebp6 \
@@ -28,7 +28,9 @@ RUN apt-get update && apt-get install -y \
     libepoxy0 \
     libgtk-3-0 \
     libharfbuzz-icu0 \
-    libxshmfence1
+    libxshmfence1 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Cài đặt Playwright browsers
 RUN playwright install

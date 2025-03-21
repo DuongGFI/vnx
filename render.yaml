@@ -1,6 +1,7 @@
 services:
   - type: web
     name: my-playwright-app
-    env: docker
-    dockerfilePath: ./Dockerfile
-    plan: standard
+    env: python
+    buildCommand: pip install -r requirements.txt && playwright install --with-deps
+    startCommand: python app.py
+    plan: standard  # Chọn plan phù hợp với nhu cầu

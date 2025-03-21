@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: my-playwright-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: standard

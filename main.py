@@ -10,6 +10,7 @@ def handle_popup(page):
     try:
         page.wait_for_load_state('networkidle')
         popup = page.wait_for_selector("text=Lưu ý về TPDN riêng lẻ", timeout=5000)
+       
         if popup:
             checkboxes = page.query_selector_all('input[name="checkConfirm"]')
             for checkbox in checkboxes:
@@ -33,12 +34,17 @@ def set_items_per_page(page):
 
 def scrape_data(n_pages=1):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
         page = browser.new_page()
         page.goto("https://cbonds.hnx.vn/to-chuc-phat-hanh/thong-tin-phat-hanh")
+        
+        # Trang web có thể chặn bot từ máy chủ Render. Để kiểm tra:
+        user_agent = page.evaluate("() => navigator.userAgent")
+        print(f"User Agent: {user_agent}")      
+        
         handle_popup(page)
         set_items_per_page(page)
-        
+  
         all_data = []
         for current_page in range(1, n_pages + 1):
             page.wait_for_selector("#tbReleaseResult")

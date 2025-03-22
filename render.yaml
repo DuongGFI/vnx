@@ -1,14 +1,9 @@
 services:
   - type: web
-    name: stock-crawler
-    runtime: python
-    buildCommand: |
-      pip install -r requirements.txt
-      playwright install chromium
-      playwright install-deps
-    startCommand: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
+    name: my-scraper
+    env: python
+    buildCommand: pip install -r requirements.txt && playwright install chromium && playwright install-deps chromium
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: PORT
-        value: 8888
-      - key: PLAYWRIGHT_BROWSERS_PATH
-        value: 0
+      - key: PYTHONUNBUFFERED
+        value: "1"

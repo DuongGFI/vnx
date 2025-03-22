@@ -34,7 +34,15 @@ def set_items_per_page(page):
 
 def scrape_data(n_pages=1):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
+        browser = p.chromium.launch(
+                        headless=True,
+                        args=[
+                            "--no-sandbox",
+                            "--disable-dev-shm-usage",
+                            "--disable-gpu",
+                            "--disable-setuid-sandbox"
+                        ]
+                    )
         page = browser.new_page()
         page.goto("https://cbonds.hnx.vn/to-chuc-phat-hanh/thong-tin-phat-hanh")
         
@@ -72,7 +80,11 @@ def scrape_data(n_pages=1):
         ]
         df = pd.DataFrame(all_data, columns=columns)
         return df
-
+        
+@app.get("/")
+def read_root():
+    return {"status": "OK", "message": "Service is running"}
+    
 @app.get("/scrape")
 def scrape(n_pages: int = 1):
     try:

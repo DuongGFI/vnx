@@ -60,119 +60,22 @@ def scrape_data(n_pages=1):
         set_items_per_page(page)
   
         all_data = []
-        # for current_page in range(1, n_pages + 1):
-        #     page.wait_for_selector("#tbReleaseResult")
-        #     table_data = page.evaluate("""
-        #         () => {
-        #             return Array.from(document.querySelectorAll('#tbReleaseResult tbody tr'))
-        #                 .map(row => Array.from(row.querySelectorAll('td')).map(cell => cell.innerText));
-        #         }
-        #     """)
-        #     all_data.extend(table_data)
-        #     next_button = page.query_selector('a.next')
-        #     if next_button:
-        #         next_button.click()
-        #         time.sleep(2)
-        #     else:
-        #         break
         for current_page in range(1, n_pages + 1):
-            max_retries = 2
-            retry_count = 0
-            success = False
-            
-            while retry_count <= max_retries and not success:
-                try:
-                    # Thêm timeout động theo số lần retry
-                    timeout = 30000 * (retry_count + 1)
-                    
-                    # Chờ bảng với các điều kiện nghiêm ngặt hơn
-                    page.wait_for_selector(
-                        "#tbReleaseResult:not(:empty)", 
-                        state="attached", 
-                        timeout=timeout
-                    )
-                    
-                    # Verify có dữ liệu thực sự
-                    table = page.query_selector("#tbReleaseResult")
-                    rows = table.query_selector_all("tbody tr")
-                    if len(rows) == 0:
-                        raise Exception("Empty table detected")
-                        
-                    # Lấy dữ liệu
-                    table_data = page.evaluate("""() => {
-                        return Array.from(document.querySelectorAll('#tbReleaseResult tbody tr'))
-                            .map(row => {
-                                const cells = Array.from(row.querySelectorAll('td'));
-                                return cells.map(cell => {
-                                    const text = cell.innerText;
-                                    const link = cell.querySelector('a')?.href;
-                                    return link ? `${text} [LINK:${link}]` : text;
-                                });
-                            });
-                    }""")
-                    
-                    all_data.extend(table_data)
-                    success = True
-                    
-                except Exception as e:
-                    print(f"Attempt {retry_count + 1} failed: {str(e)}")
-                    retry_count += 1
-                    
-                    # Recovery actions
-                    if retry_count <= max_retries:
-                        print("Performing recovery actions...")
-                        # 1. Thử reload trang
-                        page.reload()
-                        # 2. Đợi các element quan trọng khác
-                        page.wait_for_selector("body", timeout=10000)
-                        # 3. Thử đóng popup lại
-                        handle_popup(page)
-                        # 4. Thử reset pagination
-                        page.evaluate("""() => {
-                            try {
-                                document.querySelector('a.page-first').click();
-                            } catch(e) {}
-                        }""")
-                        time.sleep(2 * retry_count)
-        
-            if not success:
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Failed to retrieve data after {max_retries} retries on page {current_page}"
-                )
-        
-            # Xử lý phân trang với retry
-            pagination_success = False
-            for _ in range(max_retries + 1):
-                next_button = page.query_selector('a.next:not(.disabled)')
-                if not next_button:
-                    break
-                    
-                try:
-                    # Click bằng JavaScript để tránh issues với actionability
-                    page.evaluate("(btn) => btn.click()", next_button)
-                    
-                    # Chờ confirm navigation
-                    page.wait_for_selector(
-                        f"a.page-number:has-text('{current_page + 1}')", 
-                        timeout=20000
-                    )
-                    
-                    # Verify page change
-                    current_page += 1
-                    pagination_success = True
-                    break
-                except Exception as e:
-                    print(f"Pagination failed: {str(e)}, retrying...")
-                    time.sleep(3)
-                    
-            if not pagination_success and current_page < n_pages:
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Pagination failed on page {current_page}"
-                )
+            page.wait_for_selector("#tbReleaseResult", timeout=5000)
+            table_data = page.evaluate("""
+                () => {
+                    return Array.from(document.querySelectorAll('#tbReleaseResult tbody tr'))
+                        .map(row => Array.from(row.querySelectorAll('td')).map(cell => cell.innerText));
+                }
+            """)
+            all_data.extend(table_data)
+            next_button = page.query_selector('a.next')
+            if next_button:
+                next_button.click()
+                time.sleep(2)
+            else:
+                break
         browser.close()
-        
         columns = [
             "STT", "Ngày đăng tin", "Tên DN", "Mã TP", "Tiền tệ", "Kỳ hạn",
             "Ngày phát hành", "Ngày đáo hạn", "Kỳ hạn còn lại (ngày)",

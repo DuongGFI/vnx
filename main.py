@@ -3,7 +3,6 @@ from playwright.sync_api import sync_playwright
 import pandas as pd
 import time
 from io import StringIO
-from pyppeteer import launch
 
 app = FastAPI()
 
@@ -38,15 +37,12 @@ def set_items_per_page(page):
 
 def scrape_data(n_pages=1):
     with sync_playwright() as p:
-        browser = await launch(
+        browser = p.chromium.launch(
             headless=True,
             args=[
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--no-first-run',
-                '--no-zygote',
                 '--single-process'
             ]
         )

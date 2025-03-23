@@ -1,9 +1,11 @@
 services:
   - type: web
     name: my-scraper
-    env: python
-    buildCommand: pip install -r requirements.txt && playwright install chromium && playwright install-deps chromium
+    env: docker
+    dockerfilePath: ./Dockerfile
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
+      - key: PORT
+        value: 10000
       - key: PYTHONUNBUFFERED
         value: "1"

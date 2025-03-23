@@ -93,6 +93,8 @@ def scrape(n_pages: int = 1):
         df.to_csv(output, index=False)
         response = Response(content=output.getvalue(), media_type="text/csv")
         response.headers["Content-Disposition"] = "attachment; filename=data.csv"
+        print(f"Scraped {len(df)} rows")
+        print(df.head())
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

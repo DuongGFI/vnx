@@ -3,6 +3,7 @@ from playwright.sync_api import sync_playwright
 import pandas as pd
 import time
 from io import StringIO
+from pyppeteer import launch
 
 app = FastAPI()
 
@@ -16,11 +17,14 @@ def handle_popup(page):
             for checkbox in checkboxes:
                 if not checkbox.is_checked():
                     checkbox.check()
+            time.sleep(2)
             approve_button = page.query_selector('#approvePopup, button:has-text("Đồng ý")')
             if approve_button:
                 approve_button.click()
+                print('Clicked popup')
             page.wait_for_selector('.popup-terms, #popupTerms, #cookieConsent', state='hidden', timeout=5000)
     except:
+        print('No popup')
         pass
 
 def set_items_per_page(page):
@@ -34,15 +38,18 @@ def set_items_per_page(page):
 
 def scrape_data(n_pages=1):
     with sync_playwright() as p:
-        browser = p.chromium.launch(
-                        headless=True,
-                        args=[
-                            "--no-sandbox",
-                            "--disable-dev-shm-usage",
-                            "--disable-gpu",
-                            "--disable-setuid-sandbox"
-                        ]
-                    )
+        browser = await launch(
+            headless=True,
+            args=[
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--no-first-run',
+                '--no-zygote',
+                '--single-process'
+            ]
+        )
         page = browser.new_page()
         page.goto("https://cbonds.hnx.vn/to-chuc-phat-hanh/thong-tin-phat-hanh")
         

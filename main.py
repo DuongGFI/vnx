@@ -22,8 +22,10 @@ def handle_popup(page):
                 approve_button.click()
                 print('Clicked popup')
             page.wait_for_selector('.popup-terms, #popupTerms, #cookieConsent', state='hidden', timeout=5000)
+        else:
+            print('No popup')
     except:
-        print('No popup')
+        print('Error in popup')
         pass
 
 def set_items_per_page(page):

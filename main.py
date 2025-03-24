@@ -75,7 +75,7 @@ def scrape_data(n_pages=1):
         print(f"User Agent: {user_agent}")      
         
         handle_popup(page)
-        set_items_per_page(page)
+        # set_items_per_page(page)
   
         all_data = []
         for current_page in range(1, n_pages + 1):

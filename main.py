@@ -16,7 +16,7 @@ def handle_popup(page):
             for checkbox in checkboxes:
                 if not checkbox.is_checked():
                     checkbox.check()
-            time.sleep(2)
+            time.sleep(1)
             approve_button = page.query_selector('#approvePopup, button:has-text("Đồng ý")')
             if approve_button:
                 approve_button.click()
@@ -59,7 +59,7 @@ def set_items_per_page(page):
 def scrape_data(n_pages=1):
     with sync_playwright() as p:
         browser = p.chromium.launch(
-            headless=True,
+            headless=False,
             args=[
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
@@ -87,6 +87,7 @@ def scrape_data(n_pages=1):
                 }
             """)
             all_data.extend(table_data)
+            time.sleep(1)
             next_button = page.query_selector('a.next')
             if next_button:
                 next_button.click()

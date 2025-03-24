@@ -40,27 +40,22 @@ def handle_popup(page):
 
 def set_items_per_page(page):
     try:
-        # Chờ dropdown xuất hiện tối đa 5 giây
+        # Chờ dropdown xuất hiện (tối đa 5 giây)
         dropdown = page.wait_for_selector('#slChangeNumberRecord_1', timeout=5000)
-        
-        # Giả lập hover để đảm bảo dropdown được kích hoạt
-        dropdown.hover()
-        time.sleep(1)
-        
-        # Dùng JavaScript để chọn giá trị 100 (cách này đáng tin cậy hơn `select_option()`)
+        dropdown.click()  # Nhấn vào dropdown để đảm bảo nó mở
+
+        # Chọn giá trị 100 bằng JavaScript
         page.evaluate("document.querySelector('#slChangeNumberRecord_1').value = '100';")
-        
-        # Kích hoạt sự kiện change để trang cập nhật dữ liệu
+
+        # Kích hoạt sự kiện change để cập nhật dữ liệu
         page.evaluate("document.querySelector('#slChangeNumberRecord_1').dispatchEvent(new Event('change', { bubbles: true }));")
-        
-        # Chờ trang tải lại dữ liệu (có thể mất vài giây)
-        page.wait_for_load_state('networkidle')
-        time.sleep(2)
-        
+
+        # Chờ trang tải lại dữ liệu bằng cách đợi bảng xuất hiện lại
+        page.wait_for_selector("#tbReleaseResult", timeout=10000)  # Tăng timeout lên 10 giây
         print("Successfully selected 100 items per page")
     except Exception as e:
         print(f"Failed to set items per page: {e}")
-
+        
 def scrape_data(n_pages=1):
     with sync_playwright() as p:
         browser = p.chromium.launch(

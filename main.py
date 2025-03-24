@@ -59,7 +59,7 @@ def set_items_per_page(page):
 def scrape_data(n_pages=1):
     with sync_playwright() as p:
         browser = p.chromium.launch(
-            headless=False,
+            headless=True,
             args=[
                 '--no-sandbox',
                 '--disable-setuid-sandbox',

@@ -51,7 +51,7 @@ def set_items_per_page(page):
         page.evaluate("document.querySelector('#slChangeNumberRecord_1').dispatchEvent(new Event('change', { bubbles: true }));")
 
         # Chờ trang tải lại dữ liệu bằng cách đợi bảng xuất hiện lại
-        page.wait_for_selector("#tbReleaseResult", timeout=10000)  # Tăng timeout lên 10 giây
+        page.wait_for_selector("#tbReleaseResult_wrapper > div > div.dataTables_scroll", timeout=5000)
         print("Successfully selected 100 items per page")
     except Exception as e:
         print(f"Failed to set items per page: {e}")
@@ -79,7 +79,7 @@ def scrape_data(n_pages=1):
   
         all_data = []
         for current_page in range(1, n_pages + 1):
-            page.wait_for_selector("#tbReleaseResult", timeout=5000)
+            page.wait_for_selector("#tbReleaseResult_wrapper > div > div.dataTables_scroll", timeout=5000)
             table_data = page.evaluate("""
                 () => {
                     return Array.from(document.querySelectorAll('#tbReleaseResult tbody tr'))

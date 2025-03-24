@@ -28,15 +28,38 @@ def handle_popup(page):
         print('Error in popup')
         pass
 
+# def set_items_per_page(page):
+#     try:
+#         dropdown = page.wait_for_selector('#slChangeNumberRecord_1', timeout=5000)
+#         dropdown.select_option(value="100")
+#         page.wait_for_load_state('networkidle')
+#         print('Select 100')
+#         time.sleep(2)
+#     except:
+#         pass
+
 def set_items_per_page(page):
     try:
+        # Chờ dropdown xuất hiện tối đa 5 giây
         dropdown = page.wait_for_selector('#slChangeNumberRecord_1', timeout=5000)
-        dropdown.select_option(value="100")
+        
+        # Giả lập hover để đảm bảo dropdown được kích hoạt
+        dropdown.hover()
+        time.sleep(1)
+        
+        # Dùng JavaScript để chọn giá trị 100 (cách này đáng tin cậy hơn `select_option()`)
+        page.evaluate("document.querySelector('#slChangeNumberRecord_1').value = '100';")
+        
+        # Kích hoạt sự kiện change để trang cập nhật dữ liệu
+        page.evaluate("document.querySelector('#slChangeNumberRecord_1').dispatchEvent(new Event('change', { bubbles: true }));")
+        
+        # Chờ trang tải lại dữ liệu (có thể mất vài giây)
         page.wait_for_load_state('networkidle')
-        print('Select 100')
         time.sleep(2)
-    except:
-        pass
+        
+        print("Successfully selected 100 items per page")
+    except Exception as e:
+        print(f"Failed to set items per page: {e}")
 
 def scrape_data(n_pages=1):
     with sync_playwright() as p:
